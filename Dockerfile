@@ -18,11 +18,14 @@ RUN a2enmod rewrite
 # imagemagick enable pdf
 RUN sed -i 's|<policy domain="coder" rights="none" pattern="PDF" />|<!-- <policy domain="coder" rights="none" pattern="PDF" /> -->|' /etc/ImageMagick-6/policy.xml
 
-
 # Apache root setzen & Rechte
 WORKDIR /var/www/html
 COPY . /var/www/html/
 RUN chown -R www-data:www-data /var/www/html
+
+# Add user to be used for the resizer.
+# this is the first created user -> UID 1000 -> docker host user has access to files created by this user
+RUN useradd ResizeUser
 
 # Fehleranzeige im Container
 RUN echo "display_errors=On\n" \
