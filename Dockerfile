@@ -5,13 +5,19 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
-    cron \
+    inotify-tools \
+    imagemagick \
+    supervisor \
     # Entferne die explizite --with-freetype und --with-jpeg Konfiguration
     # und installiere gd direkt. Dies funktioniert oft besser bei älteren Images.
     && docker-php-ext-install gd
 
 # Apache Rewrite aktivieren
 RUN a2enmod rewrite
+
+# imagemagick enable pdf
+RUN sed -i 's|<policy domain="coder" rights="none" pattern="PDF" />|<!-- <policy domain="coder" rights="none" pattern="PDF" /> -->|' /etc/ImageMagick-6/policy.xml
+
 
 # Apache root setzen & Rechte
 WORKDIR /var/www/html
@@ -27,4 +33,5 @@ RUN echo "display_errors=On\n" \
          > /usr/local/etc/php/conf.d/dev.ini
 
 # Start Apache im Vordergrund
-CMD ["apache2-foreground"]
+CMD ["/usr/bin/supervisord", "-c", "supervisord.conf"]
+
